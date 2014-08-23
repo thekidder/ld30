@@ -1,4 +1,3 @@
-ld30
-====
+kidder's Ludum Dare 30 Entry!
 
-Ludum Dare 30!
+A game about pixels.
