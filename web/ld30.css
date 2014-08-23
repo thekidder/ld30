@@ -1,8 +1,23 @@
 
 body {
   background-color: black;
+  
+  font-family: 'Open Sans', sans-serif;
 }
 
 canvas {
   display: block;
+}
+
+#fps {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 20px;
+  width: 24px;
+  
+  padding: 4px;
+  font-size: 18px;
+  
+  background-color: white;
 }

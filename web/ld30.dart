@@ -7,11 +7,21 @@ import 'color.dart';
 
 class Game {
   CanvasElement canvas;
+  HtmlElement fpsDisplay;
   Random rng;
   Perlin2 perlin;
   
-  Game(String selector) {
+  // fps counter
+  num frames;
+  num lastFps;
+  
+  Game(String selector, fps) {
     canvas = querySelector(selector) as CanvasElement;
+    fpsDisplay = querySelector(fps);
+    
+    fpsDisplay.innerHtml = "0";
+    frames = 0;
+    lastFps = 0;
     
     rng = new Random();
     perlin = new Perlin2(rng.nextInt(765675865));
@@ -54,7 +64,21 @@ class Game {
       }
     }
     
+    calculateFps(time);
+    
     requestRedraw();
+  }
+  
+  void calculateFps(num time) {
+    final num PERIOD = 1000;
+    ++frames;
+    
+    if(time - lastFps > PERIOD) {
+      fpsDisplay.innerHtml = (frames / (time - lastFps) * 1000).round().toString();
+      
+      frames = 0;
+      lastFps = time;
+    }
   }
   
   void requestRedraw() {
@@ -64,5 +88,5 @@ class Game {
 }
 
 void main() {
-  Game game = new Game("#container");
+  Game game = new Game("#container", "#fps");
 }
