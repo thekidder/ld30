@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:noise_algorithms/noise_algorithms.dart';
 
-import 'color.dart';
+import 'canvas_color.dart';
 import 'input.dart';
 import 'noise_world.dart';
 import 'protagonist.dart';

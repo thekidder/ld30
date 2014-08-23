@@ -1,4 +1,4 @@
-library color;
+library canvas_color;
 
 import 'package:color/color.dart';
 
