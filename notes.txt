@@ -17,4 +17,21 @@ Unresolved questions
 SPEC
 - you are a pixel, moving discretely across a field of noise
 - the noise affects your character. the more noise around you, the fainter you get. this is a life meter, of sorts
-- 
+- the goal is to get rid of the noise. you can only do this from the underlying dimension, which consists of structures that generate the noise. 
+
+- what sorts of structures?
+  - beacons - or towers - that are noise generating - or noise modulating? you need to find them and deactivate them
+
+- i'd rather not the structured world simply be a layer under the noise world - seems too straightforwad. 
+
+- what other kinds of structures would generate a space-varying noise?
+
+- maybe the beacons emit different patterns - pulses of noise, or different spatial patterns. these happen on different frequencies, so navigation is not particularly trivial 
+
+- maybe you can place your own beacons or bombs that create/destroy/modulate noise? so-called "static charges"
+
+- you should need to do something in the static world that affects the underlying world. 
+
+- there are walls/obstacles in the structure world - the challenge is to move such that you avoid the static waves and also navigate the underlying world
+
+- static charges - can temporarily destroy walls as well as static? maybe in different patterns
