@@ -1,4 +1,4 @@
 name: ld30
-description: A sample web application
+description: kidder's Ludum Dare 30 entry
 dependencies:
   browser: any
