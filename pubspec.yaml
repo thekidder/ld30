@@ -1,4 +1,6 @@
 name: ld30
 description: kidder's Ludum Dare 30 entry
 dependencies:
+  color: ">=0.3.1 <0.4.0"
+  noise_algorithms: ">=0.1.0 <0.2.0"
   browser: any
