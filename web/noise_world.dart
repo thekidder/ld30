@@ -18,7 +18,7 @@ class NoiseWorld {
   void generate(int range) {
     for(int i = 0; i < width; ++i) {
       for(int j = 0; j < height; ++j) {
-        world[i + j * height] = _rng.nextInt(range) - range ~/ 2;
+        world[i + j * width] = _rng.nextInt(range) - range ~/ 2;
       }
     }
   }
