@@ -8,4 +8,7 @@ Unresolved questions
   - Are there enemies or traps to avoid?
   - Do the underlying level structures move or change?
 
-- what is the connected worlds?
+- what are the connected worlds?
+  - You play as a pixel trapped in the snow of an analog display. or alternatively, as a single bit of information navigating a digital field of noise. 
+  - there could be a second layer, representing the underlying logic or structure behind the noise. by navigating this, you can clear the noise and win.
+  - maybe it's something a bit more nuanced?
