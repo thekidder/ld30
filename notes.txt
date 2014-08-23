@@ -1,0 +1,11 @@
+Static Charge
+You are a single pixel, navigating a featureless field of static. 
+
+Unresolved questions
+- what is the gameplay in the static dimension? What creates difficulty?
+  - Are these (invisible?) obstacles?
+  - Is there are restriction on movement?
+  - Are there enemies or traps to avoid?
+  - Do the underlying level structures move or change?
+
+- what is the connected worlds?
