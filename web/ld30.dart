@@ -36,7 +36,10 @@ class Game {
   Protagonist player;
 
   Game(String fps) {
-    renderer = new Renderer();
+    int width = 64;
+    int height = 32;
+
+    renderer = new Renderer(width, height);
      
     fpsDisplay = querySelector(fps);
 
@@ -50,8 +53,6 @@ class Game {
     input = new Input();
     lastMoveMs = 0;
     
-    int width = 64;
-    int height = 32;
 //    
 //    for(int i = 0; i < width; ++i) {
 //      for(int j = 0; j < height; ++j) {
