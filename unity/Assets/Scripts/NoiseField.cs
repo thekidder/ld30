@@ -13,15 +13,19 @@ public class NoiseField : MonoBehaviour {
 	
 	public float noiseFrequency;
 	
-	public float playerVision;
+	public float ambientVisibility;
 	
 	private float lastNoiseGen = 0f;
+	private float currentAmbient;
 	private List<Beacon> beacons = new List<Beacon>();
+	private List<VisibleObject> visibleThings = new List<VisibleObject>();
 	private List<float> noise;
-	private float visionConstant;
+	private bool lose;
 
 	// Use this for initialization
 	void Start () {
+		currentAmbient = 0f;
+		lose = false;
 		GameObject pixel = (GameObject)Resources.Load("Prefabs/Pixel");
 		
 		for(int i = 0; i < width; ++i) {
@@ -37,21 +41,25 @@ public class NoiseField : MonoBehaviour {
 		for(int i = 0; i < width * height; ++i) {
 			noise.Add(0f);
 		}
-		
-		visionConstant = PlayerController.SIZE * PlayerController.SIZE * playerVision * playerVision;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if(lose) { return; }
 		for(int i = 0; i < width; ++i) {
 			for(int j = 0; j < height; ++j) {
 				GameObject point = gameObject.transform.GetChild(j + i * height).gameObject;
-				Vector2 dist = (Vector2)transform.position
-					+ new Vector2(i * PlayerController.SIZE, j * PlayerController.SIZE)
-					- (Vector2)player.transform.position;
-				float alpha = Mathf.Clamp(dist.sqrMagnitude, 0f, visionConstant) / visionConstant;
+				float alphaTerm = 1f;
+				foreach(VisibleObject obj in visibleThings) {
+					Vector2 dist = (Vector2)transform.position
+						+ new Vector2(i * PlayerController.SIZE, j * PlayerController.SIZE)
+						- (Vector2)obj.transform.position;
+					float visionConstant = PlayerController.SIZE * PlayerController.SIZE * obj.visibility * obj.visibility;	
+					alphaTerm = Mathf.Min(Mathf.Clamp(dist.sqrMagnitude, visionConstant - obj.magnitude * visionConstant, visionConstant) / visionConstant - ambientVisibility, alphaTerm);
+				}
+				
 				Color c = point.GetComponent<SpriteRenderer>().color;
-				c.a = Mathf.Max (alpha, 5f * noise[j + i * height]);
+				c.a = Mathf.Max (alphaTerm, 5f * noise[j + i * height]);
 				point.GetComponent<SpriteRenderer>().color = c;
 			}
 		}
@@ -59,20 +67,12 @@ public class NoiseField : MonoBehaviour {
 		if(Time.time - lastNoiseGen < noiseFrequency) {
 			return;
 		}
-
-		lastNoiseGen = Time.time;
-		for(int i = 0; i < width; ++i) {
-			for(int j = 0; j < height; ++j) {
-				GameObject point = gameObject.transform.GetChild(j + i * height).gameObject;
-				float noiseRange = noise[j + i * height];
-				float currentNoise = Random.Range(-noiseRange / 2f, noiseRange / 2f) + noiseCenter;
-				point.GetComponent<SpriteRenderer>().color = new Color(
-					currentNoise, currentNoise, currentNoise + 0.05f, point.GetComponent<SpriteRenderer>().color.a);
-            }
-		}
+		
+		GenerateNoise();
 	}
 	
 	void FixedUpdate() {
+		if(lose) { return; }
 		for(int i = 0; i < width; ++i) {
 			for(int j = 0; j < height; ++j) {
 				Vector2 pos = (Vector2)transform.position + new Vector2(i * PlayerController.SIZE, j * PlayerController.SIZE);
@@ -87,7 +87,64 @@ public class NoiseField : MonoBehaviour {
 		}
 	}
 	
+	public float NoiseAt(Vector2 pos) {
+		int x = (int)(pos.x / PlayerController.SIZE + 0.5f);
+		int y = (int)(pos.y / PlayerController.SIZE + 0.5f);
+		return noise[y + x * height];
+	}
+	
 	public void AddBeacon(Beacon beacon) {
 		beacons.Add(beacon);
+	}
+	
+	public void AddVisibleObject(VisibleObject obj) {
+		visibleThings.Add(obj);
+	}
+	
+	public void Lose() {
+		lose = true;
+		StartCoroutine(LoseCoroutine());
+	}
+	
+	public void SetCurrentAmbientNoise(float n) {
+		currentAmbient = n;
+	}
+	
+	private IEnumerator LoseCoroutine() {
+		for(int t = 0; t < 16; ++t) {
+			for(int i = 0; i < width; ++i) {
+				for(int j = 0; j < height; ++j) {
+					GameObject point = gameObject.transform.GetChild(j + i * height).gameObject;
+					noise[j + i * height] = Mathf.Clamp(noise[j + i * height] + 0.06f, 0f, 1f);
+					
+					Color c = point.GetComponent<SpriteRenderer>().color;
+					c.a += 0.02f;
+					point.GetComponent<SpriteRenderer>().color = c;
+					
+				}
+			}
+			GenerateNoise();
+			yield return new WaitForSeconds(0.033f);
+		}
+		
+		for(int t = 0; t < 5; ++t) {
+			GenerateNoise();
+			yield return new WaitForSeconds(0.033f);
+        }
+        
+		Application.LoadLevel(Application.loadedLevel);
+	}
+	
+	private void GenerateNoise() {
+		lastNoiseGen = Time.time;
+		for(int i = 0; i < width; ++i) {
+			for(int j = 0; j < height; ++j) {
+				GameObject point = gameObject.transform.GetChild(j + i * height).gameObject;
+				float noiseRange = noise[j + i * height] + currentAmbient;
+				float currentNoise = Random.Range(-noiseRange / 2f, noiseRange / 2f) + noiseCenter;
+				point.GetComponent<SpriteRenderer>().color = new Color(
+					currentNoise, currentNoise, currentNoise + 0.05f, point.GetComponent<SpriteRenderer>().color.a);
+			}
+		}
 	}
 }
