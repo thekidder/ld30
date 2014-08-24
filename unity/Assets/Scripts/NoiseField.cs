@@ -75,7 +75,7 @@ public class NoiseField : MonoBehaviour {
 	}
 	
 	void FixedUpdate() {
-		if(lose) { return; }
+		if(lose || win) { return; }
 		for(int i = 0; i < width; ++i) {
 			for(int j = 0; j < height; ++j) {
 				Vector2 pos = (Vector2)transform.position + new Vector2(i * PlayerController.SIZE, j * PlayerController.SIZE);
@@ -97,7 +97,10 @@ public class NoiseField : MonoBehaviour {
 			}
 		}
 		
-		if(win) { StartCoroutine(WinCoroutine()); }
+		if(win) { 
+			player.SetActive(false);
+			StartCoroutine(WinCoroutine());
+		}
 	}
 	
 	public float NoiseAt(Vector2 pos) {
