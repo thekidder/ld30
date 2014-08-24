@@ -26,6 +26,8 @@ public class NoiseField : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		fade.color = Color.white;
+		StartCoroutine(FadeInCoroutine());
 		currentAmbient = 0f;
 		lose = false;
 		win = false;
@@ -149,6 +151,15 @@ public class NoiseField : MonoBehaviour {
         }
         
 		Application.LoadLevel(Application.loadedLevel);
+	}
+	
+	private IEnumerator FadeInCoroutine() {
+		for(int t = 0; t < 33; ++t) {
+			Color c = fade.color;
+			c.a -= 1f / 32f;
+			fade.color = c;
+			yield return new WaitForSeconds(0.033f);
+        }
 	}
 	
 	private IEnumerator WinCoroutine() {
