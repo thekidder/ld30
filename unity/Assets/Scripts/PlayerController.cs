@@ -15,9 +15,14 @@ public class PlayerController : MonoBehaviour {
 	private float currentNoise = 0f;
 	private bool lose;
 	
+	private Beacon curBeacon;
+	private float beaconTime;
+	
 	// Use this for initialization
 	void Start () {
+		curBeacon = null;
 		lose = false;
+		beaconTime = 0f;
 	}
 	
 	// Update is called once per frame
@@ -50,5 +55,27 @@ public class PlayerController : MonoBehaviour {
 			noise.Lose();
 		}
 		
+		if(curBeacon != null) {
+			beaconTime += Time.fixedDeltaTime;
+		}
+		
+		if(beaconTime > 0.5f) {
+			curBeacon.Activate();
+		}
 	}
+	
+	private void OnTriggerEnter2D(Collider2D collider) {
+		Beacon beacon = collider.gameObject.GetComponent<Beacon>();
+		if(beacon != null) {
+			curBeacon = beacon;
+		}
+	}
+	
+	private void OnTriggerLeave2D(Collider2D collider) {
+		Beacon beacon = collider.gameObject.GetComponent<Beacon>();
+		if(beacon == curBeacon) {
+			curBeacon = null;
+			beaconTime = 0f;
+		}
+    }
 }

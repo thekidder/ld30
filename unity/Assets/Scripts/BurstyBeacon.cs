@@ -11,13 +11,14 @@ public class BurstyBeacon : Beacon {
 	
 	private float strength = PlayerController.SIZE;
 	private bool growing = true;
-
+	
 	// Use this for initialization
 	override protected void Start () {
 		base.Start();
 	}
 	
 	void FixedUpdate() {
+		if(activated) { return; }
 		if(growing) {
 			strength += Time.fixedDeltaTime * growth * PlayerController.SIZE;
 			if(strength >= radius * PlayerController.SIZE) {
@@ -42,5 +43,11 @@ public class BurstyBeacon : Beacon {
 		} else {
 			return 0f;
 		}
+	}
+	
+	public override void Activate() {
+		base.Activate();
+		strength = 0f;
+		GetComponent<SpriteRenderer>().enabled = false;
 	}
 }

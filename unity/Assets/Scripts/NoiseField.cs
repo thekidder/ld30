@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class NoiseField : MonoBehaviour {
 	public GameObject player;
+	public SpriteRenderer fade;
 	
 	public int width;
 	public int height;
@@ -21,11 +22,13 @@ public class NoiseField : MonoBehaviour {
 	private List<VisibleObject> visibleThings = new List<VisibleObject>();
 	private List<float> noise;
 	private bool lose;
+	private bool win;
 
 	// Use this for initialization
 	void Start () {
 		currentAmbient = 0f;
 		lose = false;
+		win = false;
 		GameObject pixel = (GameObject)Resources.Load("Prefabs/Pixel");
 		
 		for(int i = 0; i < width; ++i) {
@@ -85,6 +88,16 @@ public class NoiseField : MonoBehaviour {
 				noise[j + i * height] = totalNoise;
 			}
 		}
+		
+		win = true;
+		foreach(Beacon b in beacons) {
+			if(!b.activated) {
+				win = false;
+				break;
+			}
+		}
+		
+		if(win) { StartCoroutine(WinCoroutine()); }
 	}
 	
 	public float NoiseAt(Vector2 pos) {
@@ -133,6 +146,18 @@ public class NoiseField : MonoBehaviour {
         }
         
 		Application.LoadLevel(Application.loadedLevel);
+	}
+	
+	private IEnumerator WinCoroutine() {
+		for(int t = 0; t < 33; ++t) {
+			Color c = fade.color;
+			c.a += 1f / 32f;
+			fade.color = c;
+			yield return new WaitForSeconds(0.033f);
+		}
+		int level = int.Parse(Application.loadedLevelName.Substring(5));
+		++level;
+		Application.LoadLevel("level" + level);
 	}
 	
 	private void GenerateNoise() {
