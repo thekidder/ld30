@@ -3,4 +3,6 @@ description: A game about pixels
 dependencies:
   color: ">=0.3.1 <0.4.0"
   noise_algorithms: ">=0.1.0 <0.2.0"
+  three:
+    git: https://github.com/threeDart/three.dart.git
   browser: any

@@ -8,14 +8,16 @@ import 'canvas_color.dart';
 import 'input.dart';
 import 'noise_world.dart';
 import 'protagonist.dart';
+import 'renderer.dart';
 import 'utility.dart';
 
 class Game {
-  CanvasElement canvas;
   HtmlElement fpsDisplay;
   Random rng;
   Perlin2 noise_range;
   Perlin2 noise_frequency;
+  
+  Renderer renderer;
 
   // fps counter
   num frames;
@@ -29,11 +31,13 @@ class Game {
   Input input;
   int lastMoveMs;
   
+  Pixel p;
+  
   Protagonist player;
-  static final CanvasColor player_color = new CanvasColor.rgb(36, 138, 235);
 
-  Game(String selector, fps) {
-    canvas = querySelector(selector) as CanvasElement;
+  Game(String fps) {
+    renderer = new Renderer();
+     
     fpsDisplay = querySelector(fps);
 
     fpsDisplay.innerHtml = "0";
@@ -46,8 +50,18 @@ class Game {
     input = new Input();
     lastMoveMs = 0;
     
-    noise_world = new NoiseWorld(64, 32);
-    player = new Protagonist(noise_world.width ~/ 2, noise_world.height ~/ 2);
+    int width = 64;
+    int height = 32;
+//    
+//    for(int i = 0; i < width; ++i) {
+//      for(int j = 0; j < height; ++j) {
+//        Pixel p = new Pixel(new Point<int>(i, j), 200, new CanvasColor.rgb(255, 255, 255));
+//        renderer.addPixel(p);
+//      }
+//    }
+    player = new Protagonist(renderer, new Point<int>(width ~/ 2, height ~/ 2));
+    noise_world = new NoiseWorld(renderer, width, height, player);
+
     
     generateNoise();
     logic_timer = new Timer.periodic(game_logic_period, gameLoop);
@@ -73,79 +87,64 @@ class Game {
     
     if(time - lastMoveMs > 20) {
       lastMoveMs = time;
-      player.pos.x += input.leftright;
-      player.pos.y += input.updown;
+      player.pos = new Point<int>(
+          clamp(player.pos.x + input.leftright, 0, noise_world.width - 1),
+          clamp(player.pos.y + input.updown, 0, noise_world.height - 1));
     }
-    
-    if(player.pos.x < 0) player.pos.x = 0;
-    if(player.pos.y < 0) player.pos.y = 0;
-    if(player.pos.x >= noise_world.width) player.pos.x = noise_world.width - 1;
-    if(player.pos.y >= noise_world.height) player.pos.y = noise_world.height - 1; 
+    noise_world.movePlayer();
   }
   
   void draw(num _) {
     int time = new DateTime.now().millisecondsSinceEpoch;
-    var context = canvas.context2D;
-
-    context.canvas.width = window.innerWidth;
-    context.canvas.height = window.innerHeight;
-
-    int num_pixels_x = noise_world.width;
-    int num_pixels_y = noise_world.height;
-    int pixel_size = context.canvas.width ~/ num_pixels_x;
-    if(context.canvas.height ~/ num_pixels_y < pixel_size) {
-      pixel_size = context.canvas.height ~/ num_pixels_y;
-    }
-
-    int start_x = (context.canvas.width - (pixel_size * num_pixels_x)) ~/ 2;
-    int start_y = (context.canvas.height - (pixel_size * num_pixels_y)) ~/ 2;
-
-    CanvasColor white = new CanvasColor.rgb(220, 220, 230);
-    for (num i = 0; i < num_pixels_x; ++i) {
-      for (num j = 0; j < num_pixels_y; ++j) {
-        drawSquare(
-            context,
-            start_x + i * pixel_size, start_y + j * pixel_size,
-            pixel_size, white);
-
-      }
-    }
-    
-    for (num i = 0; i < num_pixels_x; ++i) {
-      for (num j = 0; j < num_pixels_y; ++j) {
-        if(i == player.pos.x && j == player.pos.y) {
-          drawSquare(
-              context,
-              start_x + i * pixel_size,
-              start_y + j * pixel_size,
-              pixel_size, player_color);
-        } else {
-          CanvasColor c = new CanvasColor.grey(128 + noise_world.world[noise_world.width * j + i]);
-          c.a = (clamp(dist_sq(player.pos, new GridPoint(i, j)), 0, 100)) / 100;
-          drawSquare(
-              context, start_x + i * pixel_size, start_y + j * pixel_size, pixel_size, c);
-        }
-      }
-    }
+    renderer.render();
+//    var context = canvas.context2D;
+//
+//    context.canvas.width = window.innerWidth;
+//    context.canvas.height = window.innerHeight;
+//
+//    int num_pixels_x = noise_world.width;
+//    int num_pixels_y = noise_world.height;
+//    int pixel_size = context.canvas.width ~/ num_pixels_x;
+//    if(context.canvas.height ~/ num_pixels_y < pixel_size) {
+//      pixel_size = context.canvas.height ~/ num_pixels_y;
+//    }
+//
+//    int start_x = (context.canvas.width - (pixel_size * num_pixels_x)) ~/ 2;
+//    int start_y = (context.canvas.height - (pixel_size * num_pixels_y)) ~/ 2;
+//
+//    CanvasColor white = new CanvasColor.rgb(220, 220, 230);
+//    for (num i = 0; i < num_pixels_x; ++i) {
+//      for (num j = 0; j < num_pixels_y; ++j) {
+//        drawSquare(
+//            context,
+//            start_x + i * pixel_size, start_y + j * pixel_size,
+//            pixel_size, white);
+//
+//      }
+//    }
+//    
+//    for (num i = 0; i < num_pixels_x; ++i) {
+//      for (num j = 0; j < num_pixels_y; ++j) {
+//        if(i == player.pos.x && j == player.pos.y) {
+//          drawSquare(
+//              context,
+//              start_x + i * pixel_size,
+//              start_y + j * pixel_size,
+//              pixel_size, player_color);
+//        } else {
+//          CanvasColor c = new CanvasColor.grey(128 + noise_world.world[noise_world.width * j + i]);
+//          c.a = (clamp(player.pos.squaredDistanceTo(new Point<int>(i, j)), 0, 100)) / 100;
+//          drawSquare(
+//              context, start_x + i * pixel_size, start_y + j * pixel_size, pixel_size, c);
+//        }
+//      }
+//    }
 
     calculateFps(time);
 
     requestRedraw();
   }
   
-  void drawSquare(var context, int x, int y, int s, CanvasColor color) {
-    context
-        ..globalAlpha = color.a
-        ..lineWidth = 0
-        ..fillStyle = color.canvas();
-
-    context
-        ..beginPath()
-        ..rect(x, y, s, s)
-        ..fill()
-        ..closePath();
-  }
-
   void calculateFps(int time) {
     final num PERIOD = 1000;
     ++frames;
@@ -165,5 +164,5 @@ class Game {
 }
 
 void main() {
-  Game game = new Game("#container", "#fps");
+  Game game = new Game("#fps");
 }
