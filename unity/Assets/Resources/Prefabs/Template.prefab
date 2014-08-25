@@ -562,7 +562,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 100016}
-  fade: {fileID: 0}
+  fade: {fileID: 21200012}
   width: 64
   height: 32
   ambientNoise: .0199999996

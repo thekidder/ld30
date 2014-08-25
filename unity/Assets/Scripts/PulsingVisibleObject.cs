@@ -20,6 +20,13 @@ public class PulsingVisibleObject : VisibleObject {
 	
 	// Update is called once per frame
 	void Update () {
+		Beacon beacon = GetComponent<Beacon>();
+		if(beacon && beacon.activated) {
+			magnitude = 0f;
+			visibility = 0f;
+			return;
+		}
+
 		if(growing) {
 			visibility += Time.deltaTime * growth;
 			if(visibility >= visibilityRange.y) {

@@ -67,6 +67,7 @@ public class PlayerController : MonoBehaviour {
 	private void OnTriggerEnter2D(Collider2D collider) {
 		Beacon beacon = collider.gameObject.GetComponent<Beacon>();
 		if(beacon != null) {
+			beaconTime = 0f;
 			curBeacon = beacon;
 		}
 	}

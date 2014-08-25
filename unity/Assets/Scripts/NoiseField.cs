@@ -27,7 +27,13 @@ public class NoiseField : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		fade.color = Color.white;
-		StartCoroutine(FadeInCoroutine());
+		if(!ApplicationModel.playedIntro) {
+			ApplicationModel.playedIntro = true;
+			StartCoroutine(FadeInAtStartCoroutine());
+		} else if(!ApplicationModel.lostLevel){
+			StartCoroutine(FadeInCoroutine());
+		}
+		
 		currentAmbient = 0f;
 		lose = false;
 		win = false;
@@ -100,6 +106,7 @@ public class NoiseField : MonoBehaviour {
 		}
 		
 		if(win) { 
+			ApplicationModel.lostLevel = false;
 			player.SetActive(false);
 			StartCoroutine(WinCoroutine());
 		}
@@ -120,6 +127,7 @@ public class NoiseField : MonoBehaviour {
 	}
 	
 	public void Lose() {
+		ApplicationModel.lostLevel = true;
 		lose = true;
 		StartCoroutine(LoseCoroutine());
 	}
@@ -151,6 +159,18 @@ public class NoiseField : MonoBehaviour {
         }
         
 		Application.LoadLevel(Application.loadedLevel);
+	}
+	
+	private IEnumerator FadeInAtStartCoroutine() {
+		for(int t = 0; t < 33; ++t) {
+			yield return new WaitForSeconds(0.033f);
+		}
+		for(int t = 0; t < 66; ++t) {
+			Color c = fade.color;
+			c.a -= 1f / 65f;
+			fade.color = c;
+			yield return new WaitForSeconds(0.033f);
+		}
 	}
 	
 	private IEnumerator FadeInCoroutine() {
